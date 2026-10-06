@@ -13,32 +13,72 @@ const editor = grapesjs.init({
 })
 ```
 
-Once the editor is instantiated you can use its API and listen to its events. Before using these methods, you should get the module from the instance.
+Once the editor is instantiated you can use its API. Before using these methods you should get the module from the instance.
 
 ```js
-// Listen to events
-editor.on('style:sector:add', (sector) => { ... });
-
-// Use the API
 const styleManager = editor.StyleManager;
-styleManager.addSector(...);
 ```
 
 ## Available Events
+* `style:sector:add` Sector added. The Sector is passed as an argument to the callback.
 
-*   `style:sector:add` - Sector added. The [Sector] is passed as an argument to the callback.
-*   `style:sector:remove` - Sector removed. The [Sector] is passed as an argument to the callback.
-*   `style:sector:update` - Sector updated. The [Sector] and the object containing changes are passed as arguments to the callback.
-*   `style:property:add` - Property added. The [Property] is passed as an argument to the callback.
-*   `style:property:remove` - Property removed. The [Property] is passed as an argument to the callback.
-*   `style:property:update` - Property updated. The [Property] and the object containing changes are passed as arguments to the callback.
-*   `style:target` - Target selection changed. The target (or `null` in case the target is deselected) is passed as an argument to the callback.
+```javascript
+editor.on('style:sector:add', (sector) => { ... });
+```
 
-<!--
-* `styleManager:update:target` - The target (Component or CSSRule) is changed
-* `styleManager:change` - Triggered on style property change from new selected component, the view of the property is passed as an argument to the callback
-* `styleManager:change:{propertyName}` - As above but for a specific style property
--->
+* `style:sector:remove` Sector removed. The Sector is passed as an argument to the callback.
+
+```javascript
+editor.on('style:sector:remove', (sector) => { ... });
+```
+
+* `style:sector:update` Sector updated. The Sector and the object containing changes are passed as arguments to the callback.
+
+```javascript
+editor.on('style:sector:update', (sector, changes) => { ... });
+```
+
+* `style:property:add` Property added. The Property is passed as an argument to the callback.
+
+```javascript
+editor.on('style:property:add', (property) => { ... });
+```
+
+* `style:property:remove` Property removed. The Property is passed as an argument to the callback.
+
+```javascript
+editor.on('style:property:remove', (property) => { ... });
+```
+
+* `style:property:update` Property updated. The Property and the object containing changes are passed as arguments to the callback.
+
+```javascript
+editor.on('style:property:update', (property, changes) => { ... });
+```
+
+* `style:target` Target selection changed. The target (or null in case the target is deselected) is passed as an argument to the callback.
+
+```javascript
+editor.on('style:target', (target) => { ... });
+```
+
+* `style:layer:select` Layer selected. Object containing layer data is passed as an argument.
+
+```javascript
+editor.on('style:layer:select', (data) => { ... });
+```
+
+* `style:custom` Custom style event. Object containing all custom data is passed as an argument.
+
+```javascript
+editor.on('style:custom', ({ container }) => { ... });
+```
+
+* `style` Catch-all event for all the events mentioned above. An object containing all the available data about the triggered event is passed as an argument to the callback.
+
+```javascript
+editor.on('style', ({ event, sector, property, ... }) => { ... });
+```
 
 ## Methods
 
@@ -71,11 +111,13 @@ styleManager.addSector(...);
 
 [Property]: property.html
 
+## Sectors
+
 ## getConfig
 
 Get configuration object
 
-Returns **[Object][22]** 
+Returns **[Object][22]**&#x20;
 
 ## addSector
 
@@ -109,7 +151,7 @@ Get sector by id.
 ### Parameters
 
 *   `id` **[String][23]** Sector id
-*   `opts`   (optional, default `{}`)
+*   `opts` **{warn: [boolean][26]?}**  (optional, default `{}`)
 
 ### Examples
 
@@ -117,7 +159,7 @@ Get sector by id.
 const sector = styleManager.getSector('mySector');
 ```
 
-Returns **([Sector] | null)** 
+Returns **([Sector] | null)**&#x20;
 
 ## getSectors
 
@@ -135,7 +177,7 @@ Get all sectors.
 const sectors = styleManager.getSectors();
 ```
 
-Returns **[Array][27]<[Sector]>** 
+Returns **[Array][27]<[Sector]>**&#x20;
 
 ## removeSector
 
@@ -197,7 +239,7 @@ Get the property.
 const property = styleManager.getProperty('mySector', 'min-height');
 ```
 
-Returns **([Property] | null)** 
+Returns **([Property] | [undefined][29])**&#x20;
 
 ## getProperties
 
@@ -213,7 +255,7 @@ Get all properties of the sector.
 const properties = styleManager.getProperties('mySector');
 ```
 
-Returns **(Collection<[Property]> | null)** Collection of properties
+Returns **(Collection<[Property]> | [undefined][29])** Collection of properties
 
 ## removeProperty
 
@@ -239,8 +281,8 @@ The target could be a Component, CSSRule, or a CSS selector string.
 
 ### Parameters
 
-*   `target` **([Component] | [CSSRule] | [String][23])** 
-*   `opts`   (optional, default `{}`)
+*   `target` **([Component] | [CSSRule] | [String][23])**&#x20;
+*   `opts` **{stylable: [boolean][26]?, component: Component?}**  (optional, default `{}`)
 
 ### Examples
 
@@ -261,19 +303,19 @@ Returns **[Array][27]<([Component] | [CSSRule])>** Array containing selected Com
 Get the last selected target.
 By default, the Style Manager shows styles of the last selected target.
 
-Returns **([Component] | [CSSRule] | null)** 
+Returns **([Component] | [CSSRule] | null)**&#x20;
 
 ## getSelectedAll
 
 Get the array of selected targets.
 
-Returns **[Array][27]<([Component] | [CSSRule])>** 
+Returns **[Array][27]<([Component] | [CSSRule])>**&#x20;
 
 ## getSelectedParents
 
 Get parent rules of the last selected target.
 
-Returns **[Array][27]<[CSSRule]>** 
+Returns **[Array][27]<[CSSRule]>**&#x20;
 
 ## addStyleTargets
 
@@ -310,7 +352,7 @@ Returns **([Object][22] | null)** Property definition.
 
 Get all the available built-in property definitions.
 
-Returns **[Object][22]** 
+Returns **[Object][22]**&#x20;
 
 ## addBuiltIn
 
@@ -384,9 +426,9 @@ Returns **[Object][22]** Type definition
 
 Get all types
 
-Returns **[Array][27]** 
+Returns **[Array][27]**&#x20;
 
-[1]: https://github.com/artf/grapesjs/blob/master/src/style_manager/config/config.js
+[1]: https://github.com/GrapesJS/grapesjs/blob/master/src/style_manager/config/config.ts
 
 [2]: #getconfig
 
@@ -441,3 +483,5 @@ Returns **[Array][27]**
 [27]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
 
 [28]: property.html#properties
+
+[29]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined

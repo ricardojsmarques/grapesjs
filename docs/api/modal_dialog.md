@@ -19,10 +19,23 @@ const modal = editor.Modal;
 ```
 
 ## Available Events
+* `modal:open` Modal is opened
 
-*   `modal:open` - Modal is opened
-*   `modal:close` - Modal is closed
-*   `modal` - Event triggered on any change related to the modal. An object containing all the available data about the triggered event is passed as an argument to the callback.
+```javascript
+editor.on('modal:open', () => { ... });
+```
+
+* `modal:close` Modal is closed
+
+```javascript
+editor.on('modal:close', () => { ... });
+```
+
+* `modal` Event triggered on any change related to the modal. An object containing all the available data about the triggered event is passed as an argument to the callback.
+
+```javascript
+editor.on('modal', ({ open, title, content, ... }) => { ... });
+```
 
 ## Methods
 
@@ -58,7 +71,7 @@ modal.open({
 });
 ```
 
-Returns **this** 
+Returns **this**&#x20;
 
 ## close
 
@@ -70,7 +83,7 @@ Close the modal window
 modal.close();
 ```
 
-Returns **this** 
+Returns **this**&#x20;
 
 ## onceClose
 
@@ -89,7 +102,7 @@ modal.onceClose(() => {
 });
 ```
 
-Returns **this** 
+Returns **this**&#x20;
 
 ## onceOpen
 
@@ -108,7 +121,7 @@ modal.onceOpen(() => {
 });
 ```
 
-Returns **this** 
+Returns **this**&#x20;
 
 ## isOpen
 
@@ -120,7 +133,7 @@ Checks if the modal window is open
 modal.isOpen(); // true | false
 ```
 
-Returns **[Boolean][15]** 
+Returns **[Boolean][15]**&#x20;
 
 ## setTitle
 
@@ -141,7 +154,7 @@ el.innerText =  'New title';
 modal.setTitle(el);
 ```
 
-Returns **this** 
+Returns **this**&#x20;
 
 ## getTitle
 
@@ -153,7 +166,7 @@ Returns the title of the modal window
 modal.getTitle();
 ```
 
-Returns **([string][12] | [HTMLElement][13])** 
+Returns **([string][12] | [HTMLElement][13])**&#x20;
 
 ## setContent
 
@@ -174,7 +187,7 @@ el.innerText =  'New content';
 modal.setContent(el);
 ```
 
-Returns **this** 
+Returns **this**&#x20;
 
 ## getContent
 
@@ -186,9 +199,9 @@ Get the content of the modal window
 modal.getContent();
 ```
 
-Returns **([string][12] | [HTMLElement][13])** 
+Returns **([string][12] | [HTMLElement][13])**&#x20;
 
-[1]: https://github.com/artf/grapesjs/blob/master/src/modal_dialog/config/config.js
+[1]: https://github.com/GrapesJS/grapesjs/blob/master/src/modal_dialog/config/config.ts
 
 [2]: #open
 

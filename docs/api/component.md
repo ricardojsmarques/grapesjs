@@ -2,8 +2,6 @@
 
 ## Component
 
-**Extends Model.extend(Styleable)**
-
 The Component object represents a single node of our template structure, so when you update its properties the changes are
 immediately reflected on the canvas and in the code to export (indeed, when you ask to export the code we just go through all
 the tree of nodes).
@@ -29,7 +27,7 @@ component.get('tagName');
 *   `name` **[String][1]?** Name of the component. Will be used, for example, in Layers and badges
 *   `removable` **[Boolean][3]?** When `true` the component is removable from the canvas, default: `true`
 *   `draggable` **([Boolean][3] | [String][1] | [Function][4])?** Indicates if it's possible to drag the component inside others.
-    You can also specify a query string to indentify elements,
+    You can also specify a query string to identify elements,
     eg. `'.some-class[title=Hello], [data-gjs-type=column]'` means you can drag the component only inside elements
     containing `some-class` class and `Hello` title, and `column` components. In the case of a function, target and destination components are passed as arguments, return a Boolean to indicate if the drag is possible. Default: `true`
 *   `droppable` **([Boolean][3] | [String][1] | [Function][4])?** Indicates if it's possible to drop other components inside. You can use
@@ -47,6 +45,7 @@ component.get('tagName');
 *   `layerable` **[Boolean][3]?** Set to `false` if you need to hide the component inside Layers. Default: `true`
 *   `selectable` **[Boolean][3]?** Allow component to be selected when clicked. Default: `true`
 *   `hoverable` **[Boolean][3]?** Shows a highlight outline when hovering on the element if `true`. Default: `true`
+*   `locked` **[Boolean][3]?** Disable the selection of the component and its children in the canvas. You can unlock a children by setting its locked property to `false`. Default: `undefined`
 *   `void` **[Boolean][3]?** This property is used by the HTML exporter as void elements don't have closing tags, eg. `<br/>`, `<hr/>`, etc. Default: `false`
 *   `style` **[Object][2]?** Component default style, eg. `{ width: '100px', height: '100px', 'background-color': 'red' }`
 *   `styles` **[String][1]?** Component related styles, eg. `.my-component-class { color: red }`
@@ -62,76 +61,106 @@ component.get('tagName');
 *   `toolbar` **[Array][5]<[Object][2]>?** Set an array of items to show up inside the toolbar when the component is selected (move, clone, delete).
     Eg. `toolbar: [ { attributes: {class: 'fa fa-arrows'}, command: 'tlb-move' }, ... ]`.
     By default, when `toolbar` property is falsy the editor will add automatically commands `core:component-exit` (select parent component, added if there is one), `tlb-move` (added if `draggable`) , `tlb-clone` (added if `copyable`), `tlb-delete` (added if `removable`).
-*   `components` **Collection<[Component][9]>?** Children components. Default: `null`
+*   `components` **Collection\<Component>?** Children components. Default: `null`
+*   `delegate` **[Object][2]?** Delegate commands to other components. Available commands `remove` | `move` | `copy` | `select`. eg. `{ remove: (cmp) => cmp.closestType('other-type') }`
 
-### init
+## init
 
 Hook method, called once the model is created
 
-### updated
+## updated
 
 Hook method, called when the model has been updated (eg. updated some model's property)
 
-#### Parameters
+### Parameters
 
 *   `property` **[String][1]** Property name, if triggered after some property update
 *   `value` **any** Property value, if triggered after some property update
 *   `previous` **any** Property previous value, if triggered after some property update
 
-### removed
+## removed
 
 Hook method, called once the model has been removed
 
-### is
+## is
 
 Check component's type
 
-#### Parameters
+### Parameters
 
 *   `type` **[string][1]** Component type
 
-#### Examples
+### Examples
 
 ```javascript
 component.is('image')
 // -> false
 ```
 
-Returns **[Boolean][3]** 
+Returns **[Boolean][3]**&#x20;
 
-### props
+## props
 
 Return all the propeties
 
-Returns **[Object][2]** 
+Returns **[Object][2]**&#x20;
 
-### index
+## index
 
 Get the index of the component in the parent collection.
 
-Returns **[Number][10]** 
+Returns **[Number][9]**&#x20;
 
-### setDragMode
+## setDragMode
 
 Change the drag mode of the component.
-To get more about this feature read: [https://github.com/artf/grapesjs/issues/1936][11]
+To get more about this feature read: [https://github.com/GrapesJS/grapesjs/issues/1936][10]
 
-#### Parameters
+### Parameters
 
-*   `value` **[String][1]** Drag mode, options: 'absolute' | 'translate'
+*   `value` **[String][1]** Drag mode, options: `'absolute'` | `'translate'` | `''`
 
-Returns **this** 
+Returns **this**&#x20;
 
-### find
+## getDragMode
+
+Get the drag mode of the component.
+
+Returns **[String][1]** Drag mode value, options: `'absolute'` | `'translate'` | `''`
+
+## setSymbolOverride
+
+Set symbol override.
+By setting override to `true`, none of its property changes will be propagated to relative symbols.
+By setting override to specific properties, changes of those properties will be skipped from propagation.
+
+### Parameters
+
+*   `value` **([Boolean][3] | [String][1] | [Array][5]<[String][1]>)**&#x20;
+*   `options` **DataWatchersOptions**  (optional, default `{}`)
+
+### Examples
+
+```javascript
+component.setSymbolOverride(['children', 'classes']);
+```
+
+## getSymbolOverride
+
+Get symbol override value.
+
+Returns **([Boolean][3] | [Array][5]<[String][1]>)**&#x20;
+
+## find
 
 Find inner components by query string.
 **ATTENTION**: this method works only with already rendered component
 
-#### Parameters
+### Parameters
 
 *   `query` **[String][1]** Query string
 
-#### Examples
+### Examples
 
 ```javascript
 component.find('div > .class');
@@ -140,192 +169,220 @@ component.find('div > .class');
 
 Returns **[Array][5]** Array of components
 
-### findType
+## findType
 
 Find all inner components by component type.
 The advantage of this method over `find` is that you can use it
 also before rendering the component
 
-#### Parameters
+### Parameters
 
-*   `type` **[String][1]** Component type
+*   `query` **([String][1] | Function)** Component type or matcher function
+*   `opts` **[Object][2]?** Search options
+*   `opts.max` **[Number][12]?** Maximum number of matches before exiting
 
-#### Examples
+### Examples
 
 ```javascript
 const allImages = component.findType('image');
 console.log(allImages[0]) // prints the first found component
+
+const someComponents = component.findType((cmp) => cmp.getType() === 'something', { max: 2 });
 ```
 
-Returns **[Array][5]<[Component][9]>** 
+Returns **[Array][5]\<Component>**&#x20;
 
-### closest
+## findFirstType
+
+Find the first inner component by component type.
+If no component is found, it returns `undefined`.
+
+### Parameters
+
+*   `query` **([String][1] | Function)** Component type or matcher function
+
+### Examples
+
+```javascript
+const image = component.findFirstType('image');
+if (image) {
+ console.log(image);
+}
+
+const firstImage = component.findFirstType((cmp) => cmp.is('image'));
+```
+
+Returns **(Component | [undefined][11])**&#x20;
+
+## closest
 
 Find the closest parent component by query string.
 **ATTENTION**: this method works only with already rendered component
 
-#### Parameters
+### Parameters
 
 *   `query` **[string][1]** Query string
 
-#### Examples
+### Examples
 
 ```javascript
 component.closest('div.some-class');
 // -> Component
 ```
 
-Returns **[Component][9]** 
+Returns **Component**&#x20;
 
-### closestType
+## closestType
 
 Find the closest parent component by its type.
 The advantage of this method over `closest` is that you can use it
 also before rendering the component
 
-#### Parameters
+### Parameters
 
-*   `type` **[String][1]** Component type
+*   `query` **([String][1] | Function)** Component type or matcher function
 
-#### Examples
+### Examples
 
 ```javascript
 const Section = component.closestType('section');
 console.log(Section);
+
+const namedSection = component.closestType((cmp) => cmp.getName() === 'Section');
 ```
 
-Returns **[Component][9]** Found component, otherwise `undefined`
+Returns **Component** Found component, otherwise `undefined`
 
-### contains
+## contains
 
 The method returns a Boolean value indicating whether the passed
 component is a descendant of a given component
 
-#### Parameters
+### Parameters
 
-*   `component` **[Component][9]** Component to check
+*   `component` **Component** Component to check
 
-Returns **[Boolean][3]** 
+Returns **[Boolean][3]**&#x20;
 
-### replaceWith
+## replaceWith
 
 Replace a component with another one
 
-#### Parameters
+### Parameters
 
-*   `el` **([String][1] | [Component][9])** Component or HTML string
+*   `el` **([String][1] | Component)** Component or HTML string
+*   `opts` **[Object][2]** Options for the append action (optional, default `{}`)
 
-#### Examples
+### Examples
 
 ```javascript
-component.replaceWith('<div>Some new content</div>');
-// -> Component
+const result = component.replaceWith('<div>Some new content</div>');
+// result -> [Component]
 ```
 
-Returns **([Component][9] | [Array][5]<[Component][9]>)** New added component/s
+Returns **[Array][5]\<Component>** New replaced components
 
-### setAttributes
+## setAttributes
 
 Update attributes of the component
 
-#### Parameters
+### Parameters
 
 *   `attrs` **[Object][2]** Key value attributes
-*   `opts`   (optional, default `{}`)
+*   `opts` **SetAttrOptions**  (optional, default `{skipWatcherUpdates:false,fromDataSource:false}`)
 *   `options` **[Object][2]** Options for the model update
 
-#### Examples
+### Examples
 
 ```javascript
 component.setAttributes({ id: 'test', 'data-key': 'value' });
 ```
 
-Returns **this** 
+Returns **this**&#x20;
 
-### addAttributes
+## addAttributes
 
 Add attributes to the component
 
-#### Parameters
+### Parameters
 
 *   `attrs` **[Object][2]** Key value attributes
-*   `opts`   (optional, default `{}`)
+*   `opts` **SetAttrOptions**  (optional, default `{}`)
 *   `options` **[Object][2]** Options for the model update
 
-#### Examples
+### Examples
 
 ```javascript
 component.addAttributes({ 'data-key': 'value' });
 ```
 
-Returns **this** 
+Returns **this**&#x20;
 
-### removeAttributes
+## removeAttributes
 
 Remove attributes from the component
 
-#### Parameters
+### Parameters
 
 *   `attrs` **([String][1] | [Array][5]<[String][1]>)** Array of attributes to remove (optional, default `[]`)
-*   `opts`   (optional, default `{}`)
+*   `opts` **SetOptions**  (optional, default `{}`)
 *   `options` **[Object][2]** Options for the model update
 
-#### Examples
+### Examples
 
 ```javascript
 component.removeAttributes('some-attr');
 component.removeAttributes(['some-attr1', 'some-attr2']);
 ```
 
-Returns **this** 
+Returns **this**&#x20;
 
-### getStyle
+## getStyle
 
 Get the style of the component
 
-#### Parameters
+### Parameters
 
-*   `options`   (optional, default `{}`)
-*   `optsAdd`   (optional, default `{}`)
+*   `opts` **GetComponentStyleOpts?**&#x20;
 
-Returns **[Object][2]** 
+Returns **[Object][2]**&#x20;
 
-### setStyle
+## setStyle
 
 Set the style on the component
 
-#### Parameters
+### Parameters
 
 *   `prop` **[Object][2]** Key value style object (optional, default `{}`)
-*   `opts`   (optional, default `{}`)
+*   `opts` **UpdateStyleOptions**  (optional, default `{}`)
 
-#### Examples
+### Examples
 
 ```javascript
 component.setStyle({ color: 'red' });
 ```
 
-Returns **[Object][2]** 
+Returns **[Object][2]**&#x20;
 
-### getAttributes
+## getAttributes
 
 Return all component's attributes
 
-#### Parameters
+### Parameters
 
-*   `opts`   (optional, default `{}`)
+*   `opts` **{noClass: [boolean][3]?, noStyle: [boolean][3]?, skipResolve: [boolean][3]?}**  (optional, default `{}`)
 
-Returns **[Object][2]** 
+Returns **[Object][2]**&#x20;
 
-### addClass
+## addClass
 
 Add classes
 
-#### Parameters
+### Parameters
 
 *   `classes` **([Array][5]<[String][1]> | [String][1])** Array or string of classes
 
-#### Examples
+### Examples
 
 ```javascript
 model.addClass('class1');
@@ -336,15 +393,15 @@ model.addClass(['class1', 'class2']);
 
 Returns **[Array][5]** Array of added selectors
 
-### setClass
+## setClass
 
 Set classes (resets current collection)
 
-#### Parameters
+### Parameters
 
 *   `classes` **([Array][5]<[String][1]> | [String][1])** Array or string of classes
 
-#### Examples
+### Examples
 
 ```javascript
 model.setClass('class1');
@@ -355,15 +412,15 @@ model.setClass(['class1', 'class2']);
 
 Returns **[Array][5]** Array of added selectors
 
-### removeClass
+## removeClass
 
 Remove classes
 
-#### Parameters
+### Parameters
 
 *   `classes` **([Array][5]<[String][1]> | [String][1])** Array or string of classes
 
-#### Examples
+### Examples
 
 ```javascript
 model.removeClass('class1');
@@ -374,22 +431,22 @@ model.removeClass(['class1', 'class2']);
 
 Returns **[Array][5]** Array of removed selectors
 
-### getClasses
+## getClasses
 
 Returns component's classes as an array of strings
 
-Returns **[Array][5]** 
+Returns **[Array][5]**&#x20;
 
-### append
+## append
 
 Add new component children
 
-#### Parameters
+### Parameters
 
-*   `components` **([Component][9] | [String][1])** Component to add
+*   `components` **(Component | [String][1])** Component to add
 *   `opts` **[Object][2]** Options for the append action (optional, default `{}`)
 
-#### Examples
+### Examples
 
 ```javascript
 someComponent.get('components').length // -> 0
@@ -405,17 +462,17 @@ someComponent.append(otherComponent, { at: 0 });
 
 Returns **[Array][5]** Array of appended components
 
-### components
+## components
 
 Set new collection if `components` are provided, otherwise the
 current collection is returned
 
-#### Parameters
+### Parameters
 
-*   `components` **([Component][9] | [String][1])?** Component Definitions or HTML string
+*   `components` **(Component | [Array][5]\<Component> | [String][1])?** Component Definitions or HTML string
 *   `opts` **[Object][2]** Options, same as in `Component.append()` (optional, default `{}`)
 
-#### Examples
+### Examples
 
 ```javascript
 // Set new collection
@@ -426,17 +483,17 @@ console.log(collection.length);
 // -> 2
 ```
 
-Returns **(Collection | [Array][5]<[[Component][9]]>)** 
+Returns **(Collection | [Array][5]<[Component]>)**&#x20;
 
-### getChildAt
+## getChildAt
 
 If exists, returns the child component at specific index.
 
-#### Parameters
+### Parameters
 
-*   `index` **[Number][10]** Index of the component to return
+*   `index` **[Number][9]** Index of the component to return
 
-#### Examples
+### Examples
 
 ```javascript
 // Return first child
@@ -445,52 +502,58 @@ component.getChildAt(0);
 component.getChildAt(1);
 ```
 
-Returns **([[Component][9]] | null)** 
+Returns **([Component] | null)**&#x20;
 
-### getLastChild
+## getLastChild
 
 If exists, returns the last child component.
 
-#### Examples
+### Examples
 
 ```javascript
 const lastChild = component.getLastChild();
 ```
 
-Returns **([[Component][9]] | null)** 
+Returns **([Component] | null)**&#x20;
 
-### empty
+## empty
 
 Remove all inner components
 
 *   @return {this}
 
-#### Parameters
+### Parameters
 
 *   `opts`   (optional, default `{}`)
 
-### parent
+## parent
 
 Get the parent component, if exists
 
-#### Parameters
+### Parameters
 
-*   `opts`   (optional, default `{}`)
+*   `opts` **any**  (optional, default `{}`)
 
-#### Examples
+### Examples
 
 ```javascript
 component.parent();
 // -> Component
 ```
 
-Returns **([Component][9] | null)** 
+Returns **(Component | null)**&#x20;
 
-### getTraits
+## parents
+
+Return all parents of the component.
+
+Returns **[Array][5]\<Component>**&#x20;
+
+## getTraits
 
 Get traits.
 
-#### Examples
+### Examples
 
 ```javascript
 const traits = component.getTraits();
@@ -498,17 +561,17 @@ console.log(traits);
 // [Trait, Trait, Trait, ...]
 ```
 
-Returns **[Array][5]\<Trait>** 
+Returns **[Array][5]\<Trait>**&#x20;
 
-### setTraits
+## setTraits
 
 Replace current collection of traits with a new one.
 
-#### Parameters
+### Parameters
 
 *   `traits` **[Array][5]<[Object][2]>** Array of trait definitions
 
-#### Examples
+### Examples
 
 ```javascript
 const traits = component.setTraits([{ type: 'checkbox', name: 'disabled'}, ...]);
@@ -516,17 +579,17 @@ console.log(traits);
 // [Trait, ...]
 ```
 
-Returns **[Array][5]\<Trait>** 
+Returns **[Array][5]\<Trait>**&#x20;
 
-### getTrait
+## getTrait
 
 Get the trait by id/name.
 
-#### Parameters
+### Parameters
 
 *   `id` **[String][1]** The `id` or `name` of the trait
 
-#### Examples
+### Examples
 
 ```javascript
 const traitTitle = component.getTrait('title');
@@ -535,16 +598,16 @@ traitTitle && traitTitle.set('label', 'New label');
 
 Returns **(Trait | null)** Trait getModelToStyle
 
-### updateTrait
+## updateTrait
 
 Update a trait.
 
-#### Parameters
+### Parameters
 
 *   `id` **[String][1]** The `id` or `name` of the trait
 *   `props` **[Object][2]** Object with the props to update
 
-#### Examples
+### Examples
 
 ```javascript
 component.updateTrait('title', {
@@ -553,35 +616,35 @@ component.updateTrait('title', {
 });
 ```
 
-Returns **this** 
+Returns **this**&#x20;
 
-### getTraitIndex
+## getTraitIndex
 
 Get the trait position index by id/name. Useful in case you want to
 replace some trait, at runtime, with something else.
 
-#### Parameters
+### Parameters
 
 *   `id` **[String][1]** The `id` or `name` of the trait
 
-#### Examples
+### Examples
 
 ```javascript
 const traitTitle = component.getTraitIndex('title');
 console.log(traitTitle); // 1
 ```
 
-Returns **[Number][10]** Index position of the current trait
+Returns **[Number][9]** Index position of the current trait
 
-### removeTrait
+## removeTrait
 
 Remove trait/s by id/s.
 
-#### Parameters
+### Parameters
 
 *   `id` **([String][1] | [Array][5]<[String][1]>)** The `id`/`name` of the trait (or an array)
 
-#### Examples
+### Examples
 
 ```javascript
 component.removeTrait('title');
@@ -590,16 +653,16 @@ component.removeTrait(['title', 'id']);
 
 Returns **[Array][5]\<Trait>** Array of removed traits
 
-### addTrait
+## addTrait
 
 Add new trait/s.
 
-#### Parameters
+### Parameters
 
 *   `trait` **([String][1] | [Object][2] | [Array][5]<([String][1] | [Object][2])>)** Trait to add (or an array of traits)
 *   `opts` **Options** Options for the add (optional, default `{}`)
 
-#### Examples
+### Examples
 
 ```javascript
 component.addTrait('title', { at: 1 }); // Add title trait (`at` option is the position index)
@@ -612,23 +675,38 @@ component.addTrait(['title', {...}, ...]);
 
 Returns **[Array][5]\<Trait>** Array of added traits
 
-### getName
+## getName
 
-Get the name of the component
+Get the name of the component.
 
-Returns **[String][1]** 
+### Parameters
 
-### getIcon
+*   `opts` **[Object][2]** Options (optional, default `{}`)
+
+    *   `opts.noCustom` **[Boolean][3]?** Avoid custom name assigned to the component.
+
+Returns **[String][1]**&#x20;
+
+## setName
+
+Update component name.
+
+### Parameters
+
+*   `name` **[String][1]** New name.
+*   `opts` **SetOptions**  (optional, default `{}`)
+
+## getIcon
 
 Get the icon string
 
-Returns **[String][1]** 
+Returns **[String][1]**&#x20;
 
-### toHTML
+## toHTML
 
 Return HTML string of the component
 
-#### Parameters
+### Parameters
 
 *   `opts` **[Object][2]** Options (optional, default `{}`)
 
@@ -637,7 +715,7 @@ Return HTML string of the component
     *   `opts.withProps` **[Boolean][3]?** Include component properties as `data-gjs-*` attributes. This allows you to have re-importable HTML.
     *   `opts.altQuoteAttr` **[Boolean][3]?** In case the attribute value contains a `"` char, instead of escaping it (`attr="value &quot;"`), the attribute will be quoted using single quotes (`attr='value "'`).
 
-#### Examples
+### Examples
 
 ```javascript
 // Simple HTML return
@@ -664,72 +742,74 @@ component.toHTML({
 
 Returns **[String][1]** HTML string
 
-### getInnerHTML
+## getInnerHTML
 
 Get inner HTML of the component
 
-#### Parameters
+### Parameters
 
 *   `opts` **[Object][2]** Same options of `toHTML` (optional, default `{}`)
 
 Returns **[String][1]** HTML string
 
-### getChangedProps
+## getChangedProps
 
 Return an object containing only changed props
 
-#### Parameters
+### Parameters
 
-*   `res`  
+*   `res` **Partial\<ComponentDefinition>**&#x20;
 
-### getId
+Returns **Partial\<ComponentDefinition>**&#x20;
+
+## getId
 
 Return the component id
 
-Returns **[String][1]** 
+Returns **[String][1]**&#x20;
 
-### setId
+## setId
 
 Set new id on the component
 
-#### Parameters
+### Parameters
 
-*   `id` **[String][1]** 
-*   `opts`  
+*   `id` **[String][1]**&#x20;
+*   `opts` **any?**&#x20;
 
-Returns **this** 
+Returns **this**&#x20;
 
-### getEl
+## getEl
 
 Get the DOM element of the component.
 This works only if the component is already rendered
 
-#### Parameters
+### Parameters
 
 *   `frame` **Frame** Specific frame from which taking the element
 
-Returns **[HTMLElement][12]** 
+Returns **[HTMLElement][12]**&#x20;
 
-### getView
+## getView
 
 Get the View of the component.
 This works only if the component is already rendered
 
-#### Parameters
+### Parameters
 
 *   `frame` **Frame** Get View of a specific frame
 
-Returns **ComponentView** 
+Returns **ComponentView**&#x20;
 
-### onAll
+## onAll
 
 Execute callback function on itself and all inner components
 
-#### Parameters
+### Parameters
 
 *   `clb` **[Function][4]** Callback function, the model is passed as an argument
 
-#### Examples
+### Examples
 
 ```javascript
 component.onAll(component => {
@@ -737,28 +817,44 @@ component.onAll(component => {
 })
 ```
 
-Returns **this** 
+Returns **this**&#x20;
 
-### remove
+## forEachChild
+
+Execute a callback function on all inner child components.
+
+### Parameters
+
+*   `clb` **[Function][4]** Callback function, the child component is passed as an argument
+
+### Examples
+
+```javascript
+component.forEachChild(child => {
+ console.log(child)
+})
+```
+
+## remove
 
 Remove the component
 
-#### Parameters
+### Parameters
 
-*   `opts`   (optional, default `{}`)
+*   `opts` **any**  (optional, default `{}`)
 
-Returns **this** 
+Returns **this**&#x20;
 
-### move
+## move
 
 Move the component to another destination component
 
-#### Parameters
+### Parameters
 
-*   `component` **[Component][9]** Destination component (so the current one will be appended as a child)
+*   `component` **Component** Destination component (so the current one will be appended as a child)
 *   `opts` **[Object][2]** Options for the append action (optional, default `{}`)
 
-#### Examples
+### Examples
 
 ```javascript
 // Move the selected component on top of the wrapper
@@ -766,17 +862,17 @@ const dest = editor.getWrapper();
 editor.getSelected().move(dest, { at: 0 });
 ```
 
-Returns **this** 
+Returns **this**&#x20;
 
-### isInstanceOf
+## isInstanceOf
 
 Check if the component is an instance of some component type.
 
-#### Parameters
+### Parameters
 
 *   `type` **[String][1]** Component type
 
-#### Examples
+### Examples
 
 ```javascript
 // Add a new component type by extending an existing one
@@ -787,18 +883,18 @@ newTextExt.isInstanceOf('text-ext'); // true
 newTextExt.isInstanceOf('text'); // true
 ```
 
-Returns **[Boolean][3]** 
+Returns **[Boolean][3]**&#x20;
 
-### isChildOf
+## isChildOf
 
 Check if the component is a child of some other component (or component type)
 
-#### Parameters
+### Parameters
 
-*   `component` **([[Component][9]] | [String][1])** Component parent to check. In case a string is passed,
+*   `component` **([Component] | [String][1])** Component parent to check. In case a string is passed,
     the check will be performed on the component type.
 
-#### Examples
+### Examples
 
 ```javascript
 const newTextComponent = editor.getSelected().append({
@@ -810,7 +906,7 @@ innerComponent.isChildOf(newTextComponent); // true
 innerComponent.isChildOf('text'); // true
 ```
 
-Returns **[Boolean][3]** 
+Returns **[Boolean][3]**&#x20;
 
 [1]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
 
@@ -822,16 +918,16 @@ Returns **[Boolean][3]**
 
 [5]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
 
-[6]: https://github.com/artf/grapesjs/blob/master/src/utils/Resizer.js
+[6]: https://github.com/GrapesJS/grapesjs/blob/master/src/utils/Resizer.ts
 
 [7]: /modules/Components-js.html
 
 [8]: /modules/Traits.html
 
-[9]: #component
+[9]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
 
-[10]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+[10]: https://github.com/GrapesJS/grapesjs/issues/1936
 
-[11]: https://github.com/artf/grapesjs/issues/1936
+[11]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined
 
 [12]: https://developer.mozilla.org/docs/Web/HTML/Element

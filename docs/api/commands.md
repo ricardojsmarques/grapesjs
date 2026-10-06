@@ -16,33 +16,95 @@ Once the editor is instantiated you can use its API and listen to its events. Be
 
 ```js
 // Listen to events
-editor.on('run', () => { ... });
+editor.on('command:run', () => { ... });
 
 // Use the API
 const commands = editor.Commands;
 commands.add(...);
 ```
 
-*   ## Available Events
-*   `run:{commandName}` - Triggered when some command is called to run (eg. editor.runCommand('preview'))
-*   `stop:{commandName}` - Triggered when some command is called to stop (eg. editor.stopCommand('preview'))
-*   `run:{commandName}:before` - Triggered before the command is called
-*   `stop:{commandName}:before` - Triggered before the command is called to stop
-*   `abort:{commandName}` - Triggered when the command execution is aborted (`editor.on(`run:preview:before`, opts => opts.abort = 1);`)
-*   `run` - Triggered on run of any command. The id and the result are passed as arguments to the callback
-*   `stop` - Triggered on stop of any command. The id and the result are passed as arguments to the callback
+## Available Events
+* `command:run` Triggered on run of any command.
+
+```javascript
+editor.on('command:run', ({ id, result, options }) => {
+ console.log('Command id', id, 'command result', result);
+});
+```
+
+* `command:run:COMMAND-ID` Triggered on run of a specific command.
+
+```javascript
+editor.on('command:run:my-command', ({ result, options }) => { ... });
+```
+
+* `command:run:before:COMMAND-ID` Triggered before the command is called.
+
+```javascript
+editor.on('command:run:before:my-command', ({ options }) => { ... });
+```
+
+* `command:abort:COMMAND-ID` Triggered when the command execution is aborted.
+
+```javascript
+editor.on('command:abort:my-command', ({ options }) => { ... });
+
+// The command could be aborted during the before event
+editor.on('command:run:before:my-command', ({ options }) => {
+ if (someCondition) {
+   options.abort = true;
+ }
+});
+```
+
+* `command:stop` Triggered on stop of any command.
+
+```javascript
+editor.on('command:stop', ({ id, result, options }) => {
+ console.log('Command id', id, 'command result', result);
+});
+```
+
+* `command:stop:COMMAND-ID` Triggered on stop of a specific command.
+
+```javascript
+editor.on('command:run:my-command', ({ result, options }) => { ... });
+```
+
+* `command:stop:before:COMMAND-ID` Triggered before the command is called to stop.
+
+```javascript
+editor.on('command:stop:before:my-command', ({ options }) => { ... });
+```
+
+* `command:call` Triggered on run or stop of a command.
+
+```javascript
+editor.on('command:call', ({ id, result, options, type }) => {
+ console.log('Command id', id, 'command result', result, 'call type', type);
+});
+```
+
+* `command:call:COMMAND-ID` Triggered on run or stop of a specific command.
+
+```javascript
+editor.on('command:call:my-command', ({ result, options, type }) => { ... });
+```
+
+* CommandEventOptions
 
 ## Methods
 
 *   [add][2]
-*   [get][3]
-*   [getAll][4]
-*   [extend][5]
-*   [has][6]
-*   [run][7]
-*   [stop][8]
-*   [isActive][9]
-*   [getActive][10]
+*   [remove][3]
+*   [get][4]
+*   [getAll][5]
+*   [extend][6]
+*   [has][7]
+*   [run][8]
+*   [stop][9]
+*   [isActive][10]
+*   [getActive][11]
 
 ## add
 
@@ -50,8 +112,8 @@ Add new command to the collection
 
 ### Parameters
 
-*   `id` **[string][11]** Command's ID
-*   `command` **([Object][12] | [Function][13])** Object representing your command,
+*   `id` **[string][12]** Command's ID
+*   `command` **([Object][13] | [Function][14])** Object representing your command,
     By passing just a function it's intended as a stateless command
     (just like passing an object with only `run` method).
 
@@ -69,7 +131,17 @@ commands.add('myCommand', {
 commands.add('myCommand2', editor => { ... });
 ```
 
-Returns **this** 
+Returns **this**&#x20;
+
+## remove
+
+Remove command from the collection
+
+### Parameters
+
+*   `id` **[string][12]** Command's ID
+
+Returns **this**&#x20;
 
 ## get
 
@@ -77,7 +149,7 @@ Get command by ID
 
 ### Parameters
 
-*   `id` **[string][11]** Command's ID
+*   `id` **[string][12]** Command's ID
 
 ### Examples
 
@@ -86,7 +158,7 @@ var myCommand = commands.get('myCommand');
 myCommand.run();
 ```
 
-Returns **[Object][12]** Object representing the command
+Returns **[Object][13]** Object representing the command
 
 ## extend
 
@@ -94,9 +166,9 @@ Extend the command. The command to extend should be defined as an object
 
 ### Parameters
 
-*   `id` **[string][11]** Command's ID
-*   `cmd`   (optional, default `{}`)
-*   `Object` **[Object][12]** with the new command functions
+*   `id` **[string][12]** Command's ID
+*   `cmd` **CommandObjectById\<TId, ObjectAny>**  (optional, default `{}as CommandObjectById<TId,ObjectAny>`)
+*   `Object` **[Object][13]** with the new command functions
 
 ### Examples
 
@@ -108,7 +180,7 @@ commands.extend('old-command', {
 });
 ```
 
-Returns **this** 
+Returns **this**&#x20;
 
 ## has
 
@@ -116,15 +188,15 @@ Check if command exists
 
 ### Parameters
 
-*   `id` **[string][11]** Command's ID
+*   `id` **[string][12]** Command's ID
 
-Returns **[Boolean][14]** 
+Returns **[Boolean][15]**&#x20;
 
 ## getAll
 
 Get an object containing all the commands
 
-Returns **[Object][12]** 
+Returns **[Object][13]**&#x20;
 
 ## run
 
@@ -132,8 +204,9 @@ Execute the command
 
 ### Parameters
 
-*   `id` **[String][11]** Command ID
-*   `options` **[Object][12]** Options (optional, default `{}`)
+*   `id` **[String][12]** Command ID
+*   `args` **...CommandRunArgs\<TId>**&#x20;
+*   `options` **[Object][13]** Options (optional, default `{}`)
 
 ### Examples
 
@@ -149,8 +222,9 @@ Stop the command
 
 ### Parameters
 
-*   `id` **[String][11]** Command ID
-*   `options` **[Object][12]** Options (optional, default `{}`)
+*   `id` **[String][12]** Command ID
+*   `args` **...CommandStopArgs\<TId>**&#x20;
+*   `options` **[Object][13]** Options (optional, default `{}`)
 
 ### Examples
 
@@ -168,7 +242,7 @@ method it can't be registered as active
 
 ### Parameters
 
-*   `id` **[String][11]** Command id
+*   `id` **[String][12]** Command id
 
 ### Examples
 
@@ -182,7 +256,7 @@ commands.isActive(cId);
 // -> false
 ```
 
-Returns **[Boolean][14]** 
+Returns **[Boolean][15]**&#x20;
 
 ## getActive
 
@@ -195,32 +269,34 @@ console.log(commands.getActive());
 // -> { someCommand: itsLastReturn, anotherOne: ... };
 ```
 
-Returns **[Object][12]** 
+Returns **[Object][13]**&#x20;
 
-[1]: https://github.com/artf/grapesjs/blob/master/src/commands/config/config.js
+[1]: https://github.com/GrapesJS/grapesjs/blob/master/src/commands/config/config.ts
 
 [2]: #add
 
-[3]: #get
+[3]: #remove
 
-[4]: #getall
+[4]: #get
 
-[5]: #extend
+[5]: #getall
 
-[6]: #has
+[6]: #extend
 
-[7]: #run
+[7]: #has
 
-[8]: #stop
+[8]: #run
 
-[9]: #isactive
+[9]: #stop
 
-[10]: #getactive
+[10]: #isactive
 
-[11]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+[11]: #getactive
 
-[12]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+[12]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
 
-[13]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+[13]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
 
-[14]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
+[14]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+
+[15]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean

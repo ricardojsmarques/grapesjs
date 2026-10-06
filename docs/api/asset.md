@@ -2,44 +2,42 @@
 
 ## Asset
 
-
-
 ### Properties
 
-*   `type` **[String][1]** Asset type, eg. 'image'.
-*   `src` **[String][1]** Asset URL, eg. '[https://.../image.png][2]'.
+*   `type` **[String][1]** Asset type, eg. `'image'`.
+*   `src` **[String][1]** Asset URL, eg. `'https://.../image.png'`.
 
-### getType
+## getType
 
 Get asset type.
 
-#### Examples
+### Examples
 
 ```javascript
 // Asset: { src: 'https://.../image.png', type: 'image' }
 asset.getType(); // -> 'image'
 ```
 
-Returns **[String][1]** 
+Returns **[String][1]**&#x20;
 
-### getSrc
+## getSrc
 
 Get asset URL.
 
-#### Examples
+### Examples
 
 ```javascript
 // Asset: { src: 'https://.../image.png'  }
 asset.getSrc(); // -> 'https://.../image.png'
 ```
 
-Returns **[String][1]** 
+Returns **[String][1]**&#x20;
 
-### getFilename
+## getFilename
 
 Get filename of the asset (based on `src`).
 
-#### Examples
+### Examples
 
 ```javascript
 // Asset: { src: 'https://.../image.png' }
@@ -48,13 +46,13 @@ asset.getFilename(); // -> 'image.png'
 asset.getFilename(); // -> 'image'
 ```
 
-Returns **[String][1]** 
+Returns **[String][1]**&#x20;
 
-### getExtension
+## getExtension
 
 Get extension of the asset (based on `src`).
 
-#### Examples
+### Examples
 
 ```javascript
 // Asset: { src: 'https://.../image.png' }
@@ -63,8 +61,6 @@ asset.getExtension(); // -> 'png'
 asset.getExtension(); // -> ''
 ```
 
-Returns **[String][1]** 
+Returns **[String][1]**&#x20;
 
 [1]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
-
-[2]: https://.../image.png

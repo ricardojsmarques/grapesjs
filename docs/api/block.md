@@ -2,12 +2,10 @@
 
 ## Block
 
-
-
 ### Properties
 
 *   `label` **[String][1]** Block label, eg. `My block`
-*   `content` **([String][1] | [Object][2])** The content of the block. Might be an HTML string or a [Component Defintion][3]
+*   `content` **([String][1] | [Object][2])** The content of the block. Might be an HTML string or a [Component Definition][3]
 *   `media` **[String][1]?** HTML string for the media/icon of the block, eg. `<svg ...`, `<img ...`, etc.
 *   `category` **[String][1]?** Block category, eg. `Basic blocks`
 *   `activate` **[Boolean][4]?** If true, triggers the `active` event on the dropped component.
@@ -17,35 +15,41 @@
 *   `onClick` **[Function][5]?** Custom behavior on click, eg. `(block, editor) => editor.getWrapper().append(block.get('content'))`
 *   `attributes` **[Object][2]?** Block attributes to apply in the view element
 
-### getId
+## getId
 
 Get block id
 
-Returns **[String][1]** 
+Returns **[String][1]**&#x20;
 
-### getLabel
+## getLabel
 
 Get block label
 
-Returns **[String][1]** 
+Returns **[String][1]**&#x20;
 
-### getMedia
+## getMedia
 
 Get block media
 
-Returns **[String][1]** 
+Returns **[String][1]**&#x20;
 
-### getContent
+## getContent
 
 Get block content
 
-Returns **([Object][2] | [String][1] | [Array][6]<([Object][2] | [String][1])>)** Component definition | HTML string
+Returns **([Object][2] | [String][1] | [Array][6]<([Object][2] | [String][1])>)**&#x20;
 
-### getCategoryLabel
+## getDragDef
+
+Get block component dragDef
+
+Returns **ComponentDefinition**&#x20;
+
+## getCategoryLabel
 
 Get block category label
 
-Returns **[String][1]** 
+Returns **[String][1]**&#x20;
 
 [1]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
 

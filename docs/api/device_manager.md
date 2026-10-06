@@ -19,12 +19,35 @@ const deviceManager = editor.Devices;
 ```
 
 ## Available Events
+* `device:add` New device added to the collection. The `Device` is passed as an argument.
 
-*   `device:add` - Added new device. The [Device] is passed as an argument to the callback
-*   `device:remove` - Device removed. The [Device] is passed as an argument to the callback
-*   `device:select` - New device selected. The newly selected [Device] and the previous one, are passed as arguments to the callback
-*   `device:update` - Device updated. The updated [Device] and the object containing changes are passed as arguments to the callback
-*   `device` - Catch-all event for all the events mentioned above. An object containing all the available data about the triggered event is passed as an argument to the callback
+```javascript
+editor.on('device:add', (device) => { ... });
+```
+
+* `device:remove` Device removed from the collection. The `Device` is passed as an argument.
+
+```javascript
+editor.on('device:remove', (device) => { ... });
+```
+
+* `device:select` A new device is selected. Current and previous `Device` are passed as arguments.
+
+```javascript
+editor.on('device:select', (newDevice, prevDevice) => { ... });
+```
+
+* `device:update` Device updated. The `Device`, changed properties, and update options are passed as arguments.
+
+```javascript
+editor.on('device:update', (device, changes, options) => { ... });
+```
+
+* `device` Catch-all event for all the events mentioned above.
+
+```javascript
+editor.on('device', ({ event, model, ... }) => { ... });
+```
 
 ## Methods
 
@@ -44,7 +67,7 @@ Add new device
 ### Parameters
 
 *   `props` **[Object][8]** Device properties
-*   `options`   (optional, default `{}`)
+*   `options` **Record<[string][9], any>**  (optional, default `{}`)
 
 ### Examples
 
@@ -82,7 +105,7 @@ console.log(JSON.stringify(device));
 // {name: 'Tablet', width: '900px'}
 ```
 
-Returns **([Device] | null)** 
+Returns **([Device] | null)**&#x20;
 
 ## remove
 
@@ -116,7 +139,7 @@ console.log(JSON.stringify(devices));
 // [{name: 'Desktop', width: ''}, ...]
 ```
 
-Returns **[Array][10]<[Device]>** 
+Returns **[Array][10]<[Device]>**&#x20;
 
 ## select
 
@@ -146,9 +169,9 @@ Get the selected device
 const selected = deviceManager.getSelected();
 ```
 
-Returns **[Device]** 
+Returns **[Device]**&#x20;
 
-[1]: https://github.com/artf/grapesjs/blob/master/src/device_manager/config/config.js
+[1]: https://github.com/GrapesJS/grapesjs/blob/master/src/device_manager/config/config.ts
 
 [2]: #add
 
